@@ -72,6 +72,7 @@ class VCR(object):
         self.func_path_generator = func_path_generator
         self.decode_compressed_response = decode_compressed_response
         self._custom_patches = tuple(custom_patches)
+        self._disabled = False
 
     def _get_serializer(self, serializer_name):
         try:
@@ -95,7 +96,16 @@ class VCR(object):
             )
         return matchers
 
+    def turn_off(self):
+        self._disabled = True
+
+    def turn_on(self):
+        self._disabled = False
+
     def use_cassette(self, path=None, **kwargs):
+        if self._disabled:
+            return
+
         if path is not None and not isinstance(path, six.string_types):
             function = path
             # Assume this is an attempt to decorate a function
